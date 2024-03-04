@@ -80,49 +80,45 @@ namespace AudioAlign.Models
 
             long startMemory = GC.GetTotalMemory(false);
 
-            Task.Factory
-                .StartNew(
-                    () =>
-                        Parallel.ForEach<AudioTrack>(
-                            tracks,
-                            new ParallelOptions
-                            {
-                                MaxDegreeOfParallelism = Environment.ProcessorCount
-                            },
-                            track =>
-                            {
-                                var startTime = DateTime.Now;
-                                var progressReporter = progressMonitor.BeginTask(
-                                    "Generating sub-fingerprints for " + track.FileInfo.Name,
-                                    true
+            Task.Factory.StartNew(
+                () =>
+                    Parallel.ForEach<AudioTrack>(
+                        tracks,
+                        new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                        track =>
+                        {
+                            var startTime = DateTime.Now;
+                            var progressReporter = progressMonitor.BeginTask(
+                                "Generating sub-fingerprints for " + track.FileInfo.Name,
+                                true
+                            );
+                            var generator = new FingerprintGenerator(SelectedProfile, track);
+                            int subFingerprintsCalculated = 0;
+
+                            generator.SubFingerprintsGenerated +=
+                                new EventHandler<SubFingerprintsGeneratedEventArgs>(
+                                    delegate(object s2, SubFingerprintsGeneratedEventArgs e2)
+                                    {
+                                        subFingerprintsCalculated += e2.SubFingerprints.Count;
+                                        progressReporter.ReportProgress(
+                                            (double)e2.Index / e2.Indices * 100
+                                        );
+                                        store.Add(e2);
+                                    }
                                 );
-                                var generator = new FingerprintGenerator(SelectedProfile, track);
-                                int subFingerprintsCalculated = 0;
 
-                                generator.SubFingerprintsGenerated +=
-                                    new EventHandler<SubFingerprintsGeneratedEventArgs>(
-                                        delegate(object s2, SubFingerprintsGeneratedEventArgs e2)
-                                        {
-                                            subFingerprintsCalculated += e2.SubFingerprints.Count;
-                                            progressReporter.ReportProgress(
-                                                (double)e2.Index / e2.Indices * 100
-                                            );
-                                            store.Add(e2);
-                                        }
-                                    );
+                            generator.Generate();
 
-                                generator.Generate();
-
-                                progressReporter.Finish();
-                                Debug.WriteLine(
-                                    "subfingerprint generation finished with "
-                                        + subFingerprintsCalculated
-                                        + " hashes in "
-                                        + (DateTime.Now - startTime)
-                                );
-                            }
-                        )
-                )
+                            progressReporter.Finish();
+                            Debug.WriteLine(
+                                "subfingerprint generation finished with "
+                                    + subFingerprintsCalculated
+                                    + " hashes in "
+                                    + (DateTime.Now - startTime)
+                            );
+                        }
+                    )
+            )
                 .ContinueWith(
                     task =>
                     {
@@ -155,37 +151,33 @@ namespace AudioAlign.Models
             //      from a task run by the TaskScheduler.FromCurrentSynchronizationContext(), leading
             //      to a blocked UI.
 
-            Task.Factory
-                .StartNew(
-                    () =>
+            Task.Factory.StartNew(
+                () =>
+                {
+                    var progressReporter = progressMonitor.BeginTask("Matching hashes...", true);
+
+                    void progressCallback(double progress)
                     {
-                        var progressReporter = progressMonitor.BeginTask(
-                            "Matching hashes...",
-                            true
-                        );
+                        progressReporter.ReportProgress(progress);
+                    }
 
-                        void progressCallback(double progress)
-                        {
-                            progressReporter.ReportProgress(progress);
-                        }
+                    Stopwatch sw = new();
+                    sw.Start();
+                    store.Threshold = FingerprintBerThreshold;
+                    store.FingerprintSize = FingerprintSize;
+                    matches = store.FindAllMatches(progressCallback);
+                    sw.Stop();
+                    Debug.WriteLine(matches.Count + " matches found in {0}", sw.Elapsed);
 
-                        Stopwatch sw = new();
-                        sw.Start();
-                        store.Threshold = FingerprintBerThreshold;
-                        store.FingerprintSize = FingerprintSize;
-                        matches = store.FindAllMatches(progressCallback);
-                        sw.Stop();
-                        Debug.WriteLine(matches.Count + " matches found in {0}", sw.Elapsed);
+                    matches = MatchProcessor.FilterDuplicateMatches(matches, progressCallback);
+                    Debug.WriteLine(matches.Count + " matches found (filtered)");
 
-                        matches = MatchProcessor.FilterDuplicateMatches(matches, progressCallback);
-                        Debug.WriteLine(matches.Count + " matches found (filtered)");
-
-                        progressReporter.Finish();
-                    },
-                    CancellationToken.None,
-                    TaskCreationOptions.None,
-                    TaskScheduler.Default
-                ) // Use default scheduler, see NOTE above
+                    progressReporter.Finish();
+                },
+                CancellationToken.None,
+                TaskCreationOptions.None,
+                TaskScheduler.Default
+            ) // Use default scheduler, see NOTE above
                 .ContinueWith(
                     task =>
                     {

@@ -140,45 +140,39 @@ namespace AudioAlign
 
         private void Instance_ProcessingStarted(object sender, EventArgs e)
         {
-            progressBar
-                .Dispatcher
-                .BeginInvoke(
-                    (Action)
-                        delegate
-                        {
-                            progressBar.IsEnabled = true;
-                            progressBarLabel.Text = progressMonitor.StatusMessage;
-                        }
-                );
+            progressBar.Dispatcher.BeginInvoke(
+                (Action)
+                    delegate
+                    {
+                        progressBar.IsEnabled = true;
+                        progressBarLabel.Text = progressMonitor.StatusMessage;
+                    }
+            );
         }
 
         private void Instance_ProcessingProgressChanged(object sender, ValueEventArgs<float> e)
         {
-            progressBar
-                .Dispatcher
-                .BeginInvoke(
-                    (Action)
-                        delegate
-                        {
-                            progressBar.Value = e.Value;
-                            progressBarLabel.Text = progressMonitor.StatusMessage;
-                        }
-                );
+            progressBar.Dispatcher.BeginInvoke(
+                (Action)
+                    delegate
+                    {
+                        progressBar.Value = e.Value;
+                        progressBarLabel.Text = progressMonitor.StatusMessage;
+                    }
+            );
         }
 
         private void Instance_ProcessingFinished(object sender, EventArgs e)
         {
-            progressBar
-                .Dispatcher
-                .BeginInvoke(
-                    (Action)
-                        delegate
-                        {
-                            progressBar.Value = 0;
-                            progressBar.IsEnabled = false;
-                            progressBarLabel.Text = "";
-                        }
-                );
+            progressBar.Dispatcher.BeginInvoke(
+                (Action)
+                    delegate
+                    {
+                        progressBar.Value = 0;
+                        progressBar.IsEnabled = false;
+                        progressBarLabel.Text = "";
+                    }
+            );
         }
 
         private void FilterMatchesButton_Click(object sender, RoutedEventArgs e)
@@ -541,8 +535,7 @@ namespace AudioAlign
                             foreach (MatchPair trackPair in trackGroup.MatchPairs)
                             {
                                 List<Match> matches = trackPair
-                                    .Matches
-                                    .OrderBy(match => match.Track1Time)
+                                    .Matches.OrderBy(match => match.Track1Time)
                                     .ToList();
                                 Match first = matches.First();
                                 Match last = matches.Last();
@@ -677,15 +670,13 @@ namespace AudioAlign
                         IMatrix<double> totalCostMatrix
                     )
                     {
-                        dtwPathViewer
-                            .Dispatcher
-                            .BeginInvoke(
-                                (Action)
-                                    delegate
-                                    {
-                                        dtwPathViewer.DtwPath.Init(cellCostMatrix, totalCostMatrix);
-                                    }
-                            );
+                        dtwPathViewer.Dispatcher.BeginInvoke(
+                            (Action)
+                                delegate
+                                {
+                                    dtwPathViewer.DtwPath.Init(cellCostMatrix, totalCostMatrix);
+                                }
+                        );
                     }
                 );
                 bool drawing = false;
@@ -694,17 +685,15 @@ namespace AudioAlign
                     {
                         if (!drawing || force)
                         {
-                            dtwPathViewer
-                                .Dispatcher
-                                .BeginInvoke(
-                                    (Action)
-                                        delegate
-                                        {
-                                            drawing = true;
-                                            dtwPathViewer.DtwPath.Refresh(i, j, minI, minJ);
-                                            drawing = false;
-                                        }
-                                );
+                            dtwPathViewer.Dispatcher.BeginInvoke(
+                                (Action)
+                                    delegate
+                                    {
+                                        drawing = true;
+                                        dtwPathViewer.DtwPath.Refresh(i, j, minI, minJ);
+                                        drawing = false;
+                                    }
+                            );
                         }
                     }
                 );
@@ -858,22 +847,20 @@ namespace AudioAlign
             }
             progressReporter.Finish();
 
-            multiTrackViewer
-                .Dispatcher
-                .BeginInvoke(
-                    (Action)
-                        delegate
+            multiTrackViewer.Dispatcher.BeginInvoke(
+                (Action)
+                    delegate
+                    {
+                        foreach (Match match in matches)
                         {
-                            foreach (Match match in matches)
+                            if (normalizeSimilarity)
                             {
-                                if (normalizeSimilarity)
-                                {
-                                    match.Similarity /= maxSimilarity; // normalize to 1
-                                }
-                                multiTrackViewer.Matches.Add(match);
+                                match.Similarity /= maxSimilarity; // normalize to 1
                             }
+                            multiTrackViewer.Matches.Add(match);
                         }
-                );
+                    }
+            );
 
             s1.Close();
             s2.Close();

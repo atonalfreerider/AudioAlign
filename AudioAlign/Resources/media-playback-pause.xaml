@@ -37,7 +37,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                                             <ScaleTransform ScaleX="-Infinity" ScaleY="-Infinity" />
                                                             <TranslateTransform X="NaN" Y="NaN" />
                                                         </TransformGroup>
-                                                        <MatrixTransform>1.103262,0,0,1.054917,-163.1228,-76.31138</MatrixTransform>
                                                     </TransformGroup>
                                                 </LinearGradientBrush.Transform>
                                                 <GradientStop Color="#FF000000" Offset="0" />
@@ -87,7 +86,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                                             <ScaleTransform ScaleX="-Infinity" ScaleY="-Infinity" />
                                                             <TranslateTransform X="NaN" Y="NaN" />
                                                         </TransformGroup>
-                                                        <MatrixTransform>1,0,0,1,-0.0004,-0.09426</MatrixTransform>
+                                                     
                                                     </TransformGroup>
                                                 </LinearGradientBrush.Transform>
                                                 <GradientStop Color="#FFFFFFFF" Offset="0" />
@@ -121,7 +120,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                                             <ScaleTransform ScaleX="-Infinity" ScaleY="-Infinity" />
                                                             <TranslateTransform X="NaN" Y="NaN" />
                                                         </TransformGroup>
-                                                        <MatrixTransform>1.103262,0,0,1.054917,-163.1228,-76.31138</MatrixTransform>
+                                                        
                                                     </TransformGroup>
                                                 </LinearGradientBrush.Transform>
                                                 <GradientStop Color="#FF000000" Offset="0" />
@@ -171,7 +170,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                                             <ScaleTransform ScaleX="-Infinity" ScaleY="-Infinity" />
                                                             <TranslateTransform X="NaN" Y="NaN" />
                                                         </TransformGroup>
-                                                        <MatrixTransform>1,0,0,1,-0.0004,-0.09426</MatrixTransform>
+                                                       
                                                     </TransformGroup>
                                                 </LinearGradientBrush.Transform>
                                                 <GradientStop Color="#FFFFFFFF" Offset="0" />

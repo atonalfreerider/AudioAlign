@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
 	<AssemblyTitle>AudioAlign: Audio Synchronization and Analysis Tool</AssemblyTitle>
@@ -26,8 +26,8 @@
     <PackageReference Include="Aurio.Soxr" Version="4.2.1" />
     <PackageReference Include="Aurio.WaveControls" Version="4.2.1" />
     <PackageReference Include="Aurio.Windows" Version="4.2.1" />
-    <PackageReference Include="OxyPlot.Wpf" Version="2.1.0" />
-    <PackageReference Include="CSharpier.MsBuild" Version="0.26.4">
+    <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
+    <PackageReference Include="CSharpier.MsBuild" Version="0.27.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

@@ -74,49 +74,43 @@ namespace AudioAlign.Models
 
             long startMemory = GC.GetTotalMemory(false);
 
-            Task.Factory
-                .StartNew(
-                    () =>
-                        Parallel.ForEach<AudioTrack>(
-                            tracks,
-                            new ParallelOptions
+            Task.Factory.StartNew(
+                () =>
+                    Parallel.ForEach<AudioTrack>(
+                        tracks,
+                        new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                        track =>
+                        {
+                            var startTime = DateTime.Now;
+                            var progressReporter = progressMonitor.BeginTask(
+                                "Generating fingerprint hashes for " + track.FileInfo.Name,
+                                true
+                            );
+                            var generator = new FingerprintGenerator(SelectedProfile);
+                            int hashesCalculated = 0;
+
+                            generator.SubFingerprintsGenerated += delegate(
+                                object s,
+                                SubFingerprintsGeneratedEventArgs e
+                            )
                             {
-                                MaxDegreeOfParallelism = Environment.ProcessorCount
-                            },
-                            track =>
-                            {
-                                var startTime = DateTime.Now;
-                                var progressReporter = progressMonitor.BeginTask(
-                                    "Generating fingerprint hashes for " + track.FileInfo.Name,
-                                    true
-                                );
-                                var generator = new FingerprintGenerator(SelectedProfile);
-                                int hashesCalculated = 0;
+                                hashesCalculated += e.SubFingerprints.Count;
+                                progressReporter.ReportProgress((double)e.Index / e.Indices * 100);
+                                store.Add(e);
+                            };
 
-                                generator.SubFingerprintsGenerated += delegate(
-                                    object s,
-                                    SubFingerprintsGeneratedEventArgs e
-                                )
-                                {
-                                    hashesCalculated += e.SubFingerprints.Count;
-                                    progressReporter.ReportProgress(
-                                        (double)e.Index / e.Indices * 100
-                                    );
-                                    store.Add(e);
-                                };
+                            generator.Generate(track);
 
-                                generator.Generate(track);
-
-                                progressReporter.Finish();
-                                Debug.WriteLine(
-                                    "Fingerprint hash generation finished with "
-                                        + hashesCalculated
-                                        + " hashes in "
-                                        + (DateTime.Now - startTime)
-                                );
-                            }
-                        )
-                )
+                            progressReporter.Finish();
+                            Debug.WriteLine(
+                                "Fingerprint hash generation finished with "
+                                    + hashesCalculated
+                                    + " hashes in "
+                                    + (DateTime.Now - startTime)
+                            );
+                        }
+                    )
+            )
                 .ContinueWith(
                     task =>
                     {
@@ -149,37 +143,33 @@ namespace AudioAlign.Models
             //      from a task run by the TaskScheduler.FromCurrentSynchronizationContext(), leading
             //      to a blocked UI.
 
-            Task.Factory
-                .StartNew(
-                    () =>
+            Task.Factory.StartNew(
+                () =>
+                {
+                    var progressReporter = progressMonitor.BeginTask("Matching hashes...", true);
+
+                    void progressHandler(object sender, ValueEventArgs<double> e)
                     {
-                        var progressReporter = progressMonitor.BeginTask(
-                            "Matching hashes...",
-                            true
-                        );
+                        progressReporter.ReportProgress(e.Value);
+                    }
 
-                        void progressHandler(object sender, ValueEventArgs<double> e)
-                        {
-                            progressReporter.ReportProgress(e.Value);
-                        }
+                    Stopwatch sw = new();
+                    sw.Start();
+                    store.MatchingProgress += progressHandler;
+                    matches = store.FindAllMatches();
+                    store.MatchingProgress -= progressHandler;
+                    sw.Stop();
+                    Debug.WriteLine(matches.Count + " matches found in {0}", sw.Elapsed);
 
-                        Stopwatch sw = new();
-                        sw.Start();
-                        store.MatchingProgress += progressHandler;
-                        matches = store.FindAllMatches();
-                        store.MatchingProgress -= progressHandler;
-                        sw.Stop();
-                        Debug.WriteLine(matches.Count + " matches found in {0}", sw.Elapsed);
+                    matches = MatchProcessor.FilterDuplicateMatches(matches);
+                    Debug.WriteLine(matches.Count + " matches found (filtered)");
 
-                        matches = MatchProcessor.FilterDuplicateMatches(matches);
-                        Debug.WriteLine(matches.Count + " matches found (filtered)");
-
-                        progressReporter.Finish();
-                    },
-                    CancellationToken.None,
-                    TaskCreationOptions.None,
-                    TaskScheduler.Default
-                ) // Use default scheduler, see NOTE above
+                    progressReporter.Finish();
+                },
+                CancellationToken.None,
+                TaskCreationOptions.None,
+                TaskScheduler.Default
+            ) // Use default scheduler, see NOTE above
                 .ContinueWith(
                     task =>
                     {

@@ -48,16 +48,14 @@ namespace AudioAlign.UI
                 new FrameworkPropertyMetadata(typeof(MultiTrackViewer))
             );
 
-            VirtualCaretOffsetProperty = CaretOverlay
-                .VirtualCaretOffsetProperty
-                .AddOwner(
-                    typeof(MultiTrackViewer),
-                    new FrameworkPropertyMetadata()
-                    {
-                        Inherits = true,
-                        CoerceValueCallback = CoerceVirtualCaretOffset
-                    }
-                );
+            VirtualCaretOffsetProperty = CaretOverlay.VirtualCaretOffsetProperty.AddOwner(
+                typeof(MultiTrackViewer),
+                new FrameworkPropertyMetadata()
+                {
+                    Inherits = true,
+                    CoerceValueCallback = CoerceVirtualCaretOffset
+                }
+            );
         }
 
         private MultiTrackListBox multiTrackListBox;
@@ -415,9 +413,9 @@ namespace AudioAlign.UI
                     // Refocus on the moved selected item because it loses focus during the move
                     // http://stackoverflow.com/a/10463162
                     ListBoxItem listBoxItem = (ListBoxItem)
-                        multiTrackListBox
-                            .ItemContainerGenerator
-                            .ContainerFromItem(multiTrackListBox.SelectedItem);
+                        multiTrackListBox.ItemContainerGenerator.ContainerFromItem(
+                            multiTrackListBox.SelectedItem
+                        );
                     listBoxItem.Focus();
 
                     RefreshAdornerLayer();

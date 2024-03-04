@@ -36,12 +36,10 @@ namespace AudioAlign.UI
                 new FrameworkPropertyMetadata(typeof(MultiTrackListBox))
             );
 
-            VirtualViewportWidthProperty = VirtualViewBase
-                .VirtualViewportWidthProperty
-                .AddOwner(
-                    typeof(MultiTrackListBox),
-                    new FrameworkPropertyMetadata() { Inherits = true }
-                );
+            VirtualViewportWidthProperty = VirtualViewBase.VirtualViewportWidthProperty.AddOwner(
+                typeof(MultiTrackListBox),
+                new FrameworkPropertyMetadata() { Inherits = true }
+            );
 
             TrackHeadersVisibilityProperty = DependencyProperty.Register(
                 "TrackHeadersVisibility",

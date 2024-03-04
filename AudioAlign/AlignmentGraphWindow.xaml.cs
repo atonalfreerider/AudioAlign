@@ -56,8 +56,7 @@ namespace AudioAlign
                 TrackerFormatString = "{0}\n{1}: {2}\n{3}: {4}" // bugfix https://github.com/oxyplot/oxyplot/issues/265
             };
             matchPair
-                .Matches
-                .Select(m =>
+                .Matches.Select(m =>
                 {
                     // Create copies to avoid unexpected swapping in match list
                     var copy = new Match(m);
@@ -71,19 +70,16 @@ namespace AudioAlign
                 })
                 .OrderBy(match => match.Track1Time)
                 .ToList()
-                .ForEach(
-                    match =>
-                        lineSeries
-                            .Points
-                            .Add(
-                                new DataPoint(
-                                    DateTimeAxis.ToDouble(match.Track1.Offset + match.Track1Time),
-                                    DateTimeAxis.ToDouble(
-                                        (match.Track1.Offset + match.Track1Time)
-                                            - (match.Track2.Offset + match.Track2Time)
-                                    )
-                                )
+                .ForEach(match =>
+                    lineSeries.Points.Add(
+                        new DataPoint(
+                            DateTimeAxis.ToDouble(match.Track1.Offset + match.Track1Time),
+                            DateTimeAxis.ToDouble(
+                                (match.Track1.Offset + match.Track1Time)
+                                    - (match.Track2.Offset + match.Track2Time)
                             )
+                        )
+                    )
                 );
             plotModel.Series.Add(lineSeries);
         }

@@ -26,8 +26,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Aurio;
-using Aurio.FFT;
 using Aurio.FFmpeg;
+using Aurio.FFT;
 using Aurio.Matching;
 using Aurio.Project;
 using Aurio.Resampler;
@@ -120,19 +120,17 @@ namespace AudioAlign
                     bool projectEntry =
                         entry.Parameter != null && entry.Parameter != RecentProjects.ClearCommand;
 
-                    FileMenu
-                        .Items
-                        .Add(
-                            new MenuItem
-                            {
-                                Header =
-                                    (projectEntry ? (++count) + " " : "")
-                                    + entry.Title.Replace("_", "__"),
-                                IsEnabled = entry.Enabled,
-                                Command = Commands.FileOpenRecentProject,
-                                CommandParameter = entry.Parameter
-                            }
-                        );
+                    FileMenu.Items.Add(
+                        new MenuItem
+                        {
+                            Header =
+                                (projectEntry ? (++count) + " " : "")
+                                + entry.Title.Replace("_", "__"),
+                            IsEnabled = entry.Enabled,
+                            Command = Commands.FileOpenRecentProject,
+                            CommandParameter = entry.Parameter
+                        }
+                    );
                 }
 
                 Debug.Assert(
@@ -219,40 +217,36 @@ namespace AudioAlign
             player.CurrentTimeChanged += new EventHandler<ValueEventArgs<TimeSpan>>(
                 delegate(object sender2, ValueEventArgs<TimeSpan> e2)
                 {
-                    multiTrackViewer1
-                        .Dispatcher
-                        .BeginInvoke(
-                            (Action)
-                                delegate
+                    multiTrackViewer1.Dispatcher.BeginInvoke(
+                        (Action)
+                            delegate
+                            {
+                                multiTrackViewer1.VirtualCaretOffset = e2.Value.Ticks;
+                                // autoscroll
+                                if (
+                                    multiTrackViewer1.VirtualViewportInterval.To
+                                    <= multiTrackViewer1.VirtualCaretOffset
+                                )
                                 {
-                                    multiTrackViewer1.VirtualCaretOffset = e2.Value.Ticks;
-                                    // autoscroll
-                                    if (
-                                        multiTrackViewer1.VirtualViewportInterval.To
-                                        <= multiTrackViewer1.VirtualCaretOffset
-                                    )
-                                    {
-                                        multiTrackViewer1.VirtualViewportOffset =
-                                            multiTrackViewer1.VirtualCaretOffset;
-                                    }
+                                    multiTrackViewer1.VirtualViewportOffset =
+                                        multiTrackViewer1.VirtualCaretOffset;
                                 }
-                        );
+                            }
+                    );
                 }
             );
 
             player.PlaybackStateChanged += new EventHandler(
                 delegate(object sender2, EventArgs e2)
                 {
-                    multiTrackViewer1
-                        .Dispatcher
-                        .BeginInvoke(
-                            (Action)
-                                delegate
-                                {
-                                    // CommandManager must be called on the GUI-thread, else it won't do anything
-                                    CommandManager.InvalidateRequerySuggested();
-                                }
-                        );
+                    multiTrackViewer1.Dispatcher.BeginInvoke(
+                        (Action)
+                            delegate
+                            {
+                                // CommandManager must be called on the GUI-thread, else it won't do anything
+                                CommandManager.InvalidateRequerySuggested();
+                            }
+                    );
                 }
             );
 
@@ -268,24 +262,22 @@ namespace AudioAlign
             ProgressMonitor.GlobalInstance.ProcessingStarted += new EventHandler(
                 delegate(object sender2, EventArgs e2)
                 {
-                    progressBar1
-                        .Dispatcher
-                        .BeginInvoke(
-                            (Action)
-                                delegate
-                                {
-                                    progressBar1.IsEnabled = true;
-                                    progressBar1Label.Text = ProgressMonitor
-                                        .GlobalInstance
-                                        .StatusMessage;
-                                    win7TaskBar.ProgressState = System
-                                        .Windows
-                                        .Shell
-                                        .TaskbarItemProgressState
-                                        .Normal;
-                                    win7TaskBar.ProgressValue = 0;
-                                }
-                        );
+                    progressBar1.Dispatcher.BeginInvoke(
+                        (Action)
+                            delegate
+                            {
+                                progressBar1.IsEnabled = true;
+                                progressBar1Label.Text = ProgressMonitor
+                                    .GlobalInstance
+                                    .StatusMessage;
+                                win7TaskBar.ProgressState = System
+                                    .Windows
+                                    .Shell
+                                    .TaskbarItemProgressState
+                                    .Normal;
+                                win7TaskBar.ProgressValue = 0;
+                            }
+                    );
                 }
             );
 
@@ -294,41 +286,37 @@ namespace AudioAlign
             >(
                 delegate(object sender2, ValueEventArgs<float> e2)
                 {
-                    progressBar1
-                        .Dispatcher
-                        .BeginInvoke(
-                            (Action)
-                                delegate
-                                {
-                                    progressBar1.Value = e2.Value;
-                                    win7TaskBar.ProgressValue = e2.Value / 100;
-                                    progressBar1Label.Text = ProgressMonitor
-                                        .GlobalInstance
-                                        .StatusMessage;
-                                }
-                        );
+                    progressBar1.Dispatcher.BeginInvoke(
+                        (Action)
+                            delegate
+                            {
+                                progressBar1.Value = e2.Value;
+                                win7TaskBar.ProgressValue = e2.Value / 100;
+                                progressBar1Label.Text = ProgressMonitor
+                                    .GlobalInstance
+                                    .StatusMessage;
+                            }
+                    );
                 }
             );
 
             ProgressMonitor.GlobalInstance.ProcessingFinished += new EventHandler(
                 delegate(object sender2, EventArgs e2)
                 {
-                    progressBar1
-                        .Dispatcher
-                        .BeginInvoke(
-                            (Action)
-                                delegate
-                                {
-                                    progressBar1.Value = 0;
-                                    progressBar1.IsEnabled = false;
-                                    progressBar1Label.Text = "";
-                                    win7TaskBar.ProgressState = System
-                                        .Windows
-                                        .Shell
-                                        .TaskbarItemProgressState
-                                        .None;
-                                }
-                        );
+                    progressBar1.Dispatcher.BeginInvoke(
+                        (Action)
+                            delegate
+                            {
+                                progressBar1.Value = 0;
+                                progressBar1.IsEnabled = false;
+                                progressBar1Label.Text = "";
+                                win7TaskBar.ProgressState = System
+                                    .Windows
+                                    .Shell
+                                    .TaskbarItemProgressState
+                                    .None;
+                            }
+                    );
                 }
             );
 

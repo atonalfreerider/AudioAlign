@@ -87,45 +87,39 @@ namespace AudioAlign
             var plotModel = new PlotModel();
 
             // setup plotter axes and viewport
-            plotModel
-                .Axes
-                .Add(
-                    new TimeSpanAxis()
-                    {
-                        Position = AxisPosition.Bottom,
-                        Minimum = 0,
-                        Maximum = TimeSpanAxis.ToDouble(trackList.End - trackList.Start)
-                    }
-                );
-            plotModel
-                .Axes
-                .Add(
-                    new LinearAxis()
-                    {
-                        Minimum = -0.1,
-                        Maximum = 1.2,
-                        MajorGridlineStyle = LineStyle.Automatic,
-                        MinorGridlineStyle = LineStyle.Automatic
-                    }
-                );
+            plotModel.Axes.Add(
+                new TimeSpanAxis()
+                {
+                    Position = AxisPosition.Bottom,
+                    Minimum = 0,
+                    Maximum = TimeSpanAxis.ToDouble(trackList.End - trackList.Start)
+                }
+            );
+            plotModel.Axes.Add(
+                new LinearAxis()
+                {
+                    Minimum = -0.1,
+                    Maximum = 1.2,
+                    MajorGridlineStyle = LineStyle.Automatic,
+                    MinorGridlineStyle = LineStyle.Automatic
+                }
+            );
 
             // setup plotter graph lines
             for (int i = 1; i < dataTable.Columns.Count; i++)
             {
                 DataColumn column = dataTable.Columns[i];
-                plotModel
-                    .Series
-                    .Add(
-                        new LineSeries
-                        {
-                            Color = graphStyles[i - 1].Item1,
-                            MarkerType = graphStyles[i - 1].Item2,
-                            MarkerFill = OxyColors.Red,
-                            MarkerStroke = OxyColors.Red,
-                            Title = column.ColumnName,
-                            TrackerFormatString = "{0}\nTime: {2}\nValue: {4}" // bugfix https://github.com/oxyplot/oxyplot/issues/265
-                        }
-                    );
+                plotModel.Series.Add(
+                    new LineSeries
+                    {
+                        Color = graphStyles[i - 1].Item1,
+                        MarkerType = graphStyles[i - 1].Item2,
+                        MarkerFill = OxyColors.Red,
+                        MarkerStroke = OxyColors.Red,
+                        Title = column.ColumnName,
+                        TrackerFormatString = "{0}\nTime: {2}\nValue: {4}" // bugfix https://github.com/oxyplot/oxyplot/issues/265
+                    }
+                );
             }
 
             plotModel.IsLegendVisible = false;
@@ -138,14 +132,12 @@ namespace AudioAlign
                     TimeSpan time = (TimeSpan)e.Row.ItemArray[0];
                     for (int x = 0; x < plotModel.Series.Count; x++)
                     {
-                        ((LineSeries)plotModel.Series[x])
-                            .Points
-                            .Add(
-                                new DataPoint(
-                                    TimeSpanAxis.ToDouble(time),
-                                    (double)e.Row.ItemArray[x + 1]
-                                )
-                            );
+                        ((LineSeries)plotModel.Series[x]).Points.Add(
+                            new DataPoint(
+                                TimeSpanAxis.ToDouble(time),
+                                (double)e.Row.ItemArray[x + 1]
+                            )
+                        );
                     }
                 }
                 plotModel.InvalidatePlot(false);
@@ -181,47 +173,41 @@ namespace AudioAlign
 
         private void Instance_ProcessingStarted(object sender, EventArgs e)
         {
-            progressBar
-                .Dispatcher
-                .BeginInvoke(
-                    (Action)
-                        delegate
-                        {
-                            parameterGroupBox.IsEnabled = false;
-                            progressBar.IsEnabled = true;
-                            progressBarLabel.Text = progressMonitor.StatusMessage;
-                        }
-                );
+            progressBar.Dispatcher.BeginInvoke(
+                (Action)
+                    delegate
+                    {
+                        parameterGroupBox.IsEnabled = false;
+                        progressBar.IsEnabled = true;
+                        progressBarLabel.Text = progressMonitor.StatusMessage;
+                    }
+            );
         }
 
         private void Instance_ProcessingProgressChanged(object sender, ValueEventArgs<float> e)
         {
-            progressBar
-                .Dispatcher
-                .BeginInvoke(
-                    (Action)
-                        delegate
-                        {
-                            progressBar.Value = e.Value;
-                            progressBarLabel.Text = progressMonitor.StatusMessage;
-                        }
-                );
+            progressBar.Dispatcher.BeginInvoke(
+                (Action)
+                    delegate
+                    {
+                        progressBar.Value = e.Value;
+                        progressBarLabel.Text = progressMonitor.StatusMessage;
+                    }
+            );
         }
 
         private void Instance_ProcessingFinished(object sender, EventArgs e)
         {
-            progressBar
-                .Dispatcher
-                .BeginInvoke(
-                    (Action)
-                        delegate
-                        {
-                            progressBar.Value = 0;
-                            progressBar.IsEnabled = false;
-                            progressBarLabel.Text = "";
-                            parameterGroupBox.IsEnabled = true;
-                        }
-                );
+            progressBar.Dispatcher.BeginInvoke(
+                (Action)
+                    delegate
+                    {
+                        progressBar.Value = 0;
+                        progressBar.IsEnabled = false;
+                        progressBarLabel.Text = "";
+                        parameterGroupBox.IsEnabled = true;
+                    }
+            );
         }
 
         private void AnalyzeButton_Click(object sender, RoutedEventArgs e)
@@ -244,43 +230,37 @@ namespace AudioAlign
             analysis.WindowAnalysed += new EventHandler<AnalysisEventArgs>(
                 delegate(object sender2, AnalysisEventArgs e2)
                 {
-                    analysisResultsGrid
-                        .Dispatcher
-                        .Invoke(
-                            (Action)
-                                delegate
-                                {
-                                    windowResults.Add(e2);
-                                    dataTable
-                                        .Rows
-                                        .Add(
-                                            e2.Time,
-                                            e2.Min,
-                                            e2.Max,
-                                            e2.SumPositive,
-                                            e2.SumNegative,
-                                            e2.SumAbsolute,
-                                            e2.AveragePositive,
-                                            e2.AverageNegative,
-                                            e2.AverageAbsolute,
-                                            e2.Score
-                                        );
-                                }
-                        );
+                    analysisResultsGrid.Dispatcher.Invoke(
+                        (Action)
+                            delegate
+                            {
+                                windowResults.Add(e2);
+                                dataTable.Rows.Add(
+                                    e2.Time,
+                                    e2.Min,
+                                    e2.Max,
+                                    e2.SumPositive,
+                                    e2.SumNegative,
+                                    e2.SumAbsolute,
+                                    e2.AveragePositive,
+                                    e2.AverageNegative,
+                                    e2.AverageAbsolute,
+                                    e2.Score
+                                );
+                            }
+                    );
                 }
             );
             analysis.Finished += new EventHandler<AnalysisEventArgs>(
                 delegate(object sender2, AnalysisEventArgs e2)
                 {
-                    analysisResultsGrid
-                        .Dispatcher
-                        .Invoke(
-                            (Action)
-                                delegate
-                                {
-                                    windowResults.Add(e2);
-                                }
-                        );
+                    analysisResultsGrid.Dispatcher.Invoke(
+                        (Action)
+                            delegate
+                            {
+                                windowResults.Add(e2);
+                            }
+                    );
                 }
             );
             analysis.ExecuteAsync();
